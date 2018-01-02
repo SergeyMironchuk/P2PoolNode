@@ -1,0 +1,56 @@
+table {
+  border-collapse: collapse;
+}
+
+td, th {
+  border: 1px solid gray;
+  font-weight: normal;
+}
+
+/* Structure */
+.component-form {
+  width: 1024px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.component-container {
+  display: flex;
+  flex-direction: column;
+  max-height: 500px;
+  width: 1024px;
+  margin-left: auto;
+  margin-right: auto;
+  overflow: auto;
+  padding: 5px;
+}
+
+.component-container-row {
+  display: flex;
+  flex-direction: row;
+  max-height: 500px;
+  width: 1024px;
+  margin-left: auto;
+  margin-right: auto;
+  overflow: auto;
+  padding: 5px;
+}
+
+.component-header {
+  min-height: 64px;
+  display: flex;
+  align-items: baseline;
+  padding: 8px 24px 0;
+  font-size: 20px;
+  justify-content: space-between;
+}
+
+.mat-input-container {
+  font-size: 14px;
+  flex-grow: 1;
+  margin-left: 10px;
+}
+
+.pd-3 {
+  padding: 3px;
+}
