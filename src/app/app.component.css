@@ -9,7 +9,7 @@ td, th {
 
 /* Structure */
 .component-form {
-  width: 1024px;
+  width: 1000px;
   margin-left: auto;
   margin-right: auto;
 }
@@ -18,7 +18,7 @@ td, th {
   display: flex;
   flex-direction: column;
   max-height: 500px;
-  width: 1024px;
+  width: 1000px;
   margin-left: auto;
   margin-right: auto;
   overflow: auto;
@@ -29,7 +29,7 @@ td, th {
   display: flex;
   flex-direction: row;
   max-height: 500px;
-  width: 1024px;
+  width: 1000px;
   margin-left: auto;
   margin-right: auto;
   overflow: auto;

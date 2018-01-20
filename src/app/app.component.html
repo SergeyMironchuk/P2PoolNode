@@ -26,6 +26,7 @@
 </div>
 <div class="component-container" *ngIf="localStats">
   Expected time to block: {{expectedTimeToBlock}} hours
+  (average: {{expectedTimeToBlockAverage}} hours)
 </div>
 <br/>
 <div class="component-container" *ngIf="localStats">
@@ -37,6 +38,7 @@
       <tr>
         <th class="pd-3" style="text-align: left; vertical-align: top;">Address</th>
         <th style="text-align: right; vertical-align: top;" class="pd-3">Hashrate</th>
+        <th style="text-align: right; vertical-align: top;" class="pd-3">Rejected</th>
         <th style="text-align: right; vertical-align: top;" class="pd-3">Difficulty</th>
         <th style="text-align: right; width: 165px; vertical-align: top;" class="pd-3">
           Predicted Payout / Block<br/>
@@ -44,7 +46,6 @@
         </th>
         <th style="text-align: right; width: 135px; vertical-align: top;" class="pd-3">
           Profit / Day<br/>
-          <span style="font-size: 0.7em; color: silver;">(theoretically at the moment)</span>
         </th>
       </tr>
     </thead>
@@ -52,9 +53,10 @@
       <tr *ngFor="let workerInfo of workersInfo">
         <td style="text-align: left" class="pd-3">{{workerInfo.Address}}</td>
         <td style="text-align: right; padding-left: 20px;" class="pd-3">{{workerInfo.HashRate}} MH/s</td>
+        <td style="text-align: right; padding-left: 20px;" class="pd-3">{{workerInfo.Rejected}}%</td>
         <td style="text-align: right; padding-left: 20px;" class="pd-3">{{workerInfo.LastDifficult}}</td>
         <td style="text-align: right; padding-left: 20px;" class="pd-3">{{workerInfo.CurrentPayout}}</td>
-        <td style="text-align: right; padding-left: 20px;" class="pd-3">{{workerInfo.ProfitOnDay}}</td>
+        <td style="text-align: right; padding-left: 20px;" class="pd-3">{{workerInfo.ProfitPerDay}}</td>
       </tr>
     </tbody>
   </table>

@@ -3,5 +3,6 @@ export class WorkerInfo {
   HashRate: number;
   LastDifficult: number;
   CurrentPayout: number;
-  ProfitOnDay: number;
+  ProfitPerDay: number;
+  Rejected: number;
 }

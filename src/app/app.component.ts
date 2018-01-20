@@ -7,6 +7,9 @@ import {RecentBlock} from './model/block';
 import {ClipboardHelper} from './clipboard-helper';
 import {MatSnackBar} from '@angular/material';
 import {MINER_URL} from './config';
+import {ProfitPerDayStats} from './model/profit-per-day-stats';
+import {TimeHelper} from './time-helper';
+import {WorkerValue} from './model/worker-value';
 
 @Component({
   selector: 'app-root',
@@ -14,21 +17,25 @@ import {MINER_URL} from './config';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
-  title = 'app';
+  // title = 'app';
   localStats: LocalStats;
   globalStats: GlobalStats;
   errorMessage: any;
   workersInfo: WorkerInfo[];
-  expectedTimeToBlock: number;
   recentBlocks: RecentBlock[];
   showRecentBlocks: boolean;
   minerUrl: string;
+  expectedTimeToBlock: number;
+  expectedTimesToBlock: number[];
+  expectedTimeToBlockAverage: number;
 
   constructor(private statsService: StatsService,
               public snackBar: MatSnackBar) { }
 
   ngOnInit(): void {
+    this.expectedTimesToBlock = new Array<number>();
     this.minerUrl = MINER_URL;
+    this.RequestInfo();
     setInterval(() => this.RequestInfo(), 10000);
     // this.RequestInfo();
   }
@@ -36,39 +43,22 @@ export class AppComponent implements OnInit {
   private RequestInfo() {
     this.statsService.GetLocalStats()
       .then(localStats => {
-        this.localStats = localStats;
-        this.localStats.block_value = +this.localStats.block_value.toFixed(8);
-        this.localStats.efficiency = +(this.localStats.efficiency * 100).toFixed(2);
-        this.workersInfo = localStats.miner_hash_rates.map(hash_rate => {
-          const workerInfo = new WorkerInfo();
-          workerInfo.Address = hash_rate.Address;
-          workerInfo.HashRate = Math.round(hash_rate.Value / 1000000);
-          for (const difficult of localStats.miner_last_difficulties) {
-            if (difficult.Address === workerInfo.Address) {
-              workerInfo.LastDifficult = Math.round(difficult.Value);
-            }
-          }
-          return workerInfo;
-        });
 
         this.statsService.GetCurrentPayouts()
           .then(payouts => {
-            for (const workerInfo of this.workersInfo) {
-              for (const payout of payouts) {
-                if (payout.Address === workerInfo.Address) {
-                  workerInfo.CurrentPayout = payout.Value;
-                }
-              }
-            }
 
             this.statsService.GetGlobalStats()
               .then(globalStats => {
+                this.expectedTimeToBlock = localStats.attempts_to_block / globalStats.pool_hash_rate / 60 / 60;
+                this.expectedTimesToBlock.push(this.expectedTimeToBlock);
+                this.expectedTimeToBlock = +this.expectedTimeToBlock.toFixed();
+
+                this.workersInfo = this.statsService.GetWorkersInfo(localStats, payouts, this.GetExpectedTimeForBlockAverage());
+
+                this.localStats = localStats;
+                this.localStats.block_value = +localStats.block_value.toFixed(8);
+                this.localStats.efficiency = +(localStats.efficiency * 100).toFixed(2);
                 this.globalStats = globalStats;
-                for (const workerInfo of this.workersInfo) {
-                  this.expectedTimeToBlock = localStats.attempts_to_block / globalStats.pool_hash_rate / 60 / 60;
-                  workerInfo.ProfitOnDay = +(workerInfo.CurrentPayout / this.expectedTimeToBlock * 24).toFixed(4);
-                  this.expectedTimeToBlock = +this.expectedTimeToBlock.toFixed();
-                }
               })
               .catch(reason => {
                 this.errorMessage = reason;
@@ -88,20 +78,28 @@ export class AppComponent implements OnInit {
         this.recentBlocks = blocks;
         this.showRecentBlocks = (this.recentBlocks.length > 0);
         for (const recentBlock of this.recentBlocks) {
-          const a = new Date(recentBlock.ts * 1000);
-          const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-          const year = a.getFullYear();
-          const month = months[a.getMonth()];
-          const date = a.getDate();
-          const hour = a.getHours();
-          const min = a.getMinutes();
-          const sec = a.getSeconds();
-          recentBlock.time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec ;
+          const time = TimeHelper.GetTimeFromTimestamp(recentBlock.ts);
+          recentBlock.time = time;
         }
       })
       .catch(reason => {
         this.errorMessage = reason;
       });
+  }
+
+  private GetExpectedTimeForBlockAverage(): number {
+    let result = 0;
+    if (this.expectedTimesToBlock.length > 8640) {
+      this.expectedTimesToBlock.shift();
+    }
+    if (this.expectedTimesToBlock.length > 0) {
+      for (const value of this.expectedTimesToBlock) {
+        result += value;
+      }
+      result = result / this.expectedTimesToBlock.length;
+      this.expectedTimeToBlockAverage = +result.toFixed(2);
+    }
+    return result;
   }
 
   CopyDirectloadUrl() {

@@ -3,6 +3,7 @@ import {WorkerValue} from './worker-value';
 export class LocalStats {
   miner_hash_rates: WorkerValue[];
   miner_last_difficulties: WorkerValue[];
+  miner_dead_hash_rates: WorkerValue[];
   attempts_to_block: number;
   block_value: number;
   shares: Shares;
